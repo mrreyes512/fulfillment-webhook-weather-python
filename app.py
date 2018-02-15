@@ -18,10 +18,12 @@ from __future__ import print_function
 from future.standard_library import install_aliases
 install_aliases()
 
+from urllib import parse
 from urllib.parse import urlparse, urlencode
 from urllib.request import urlopen, Request
 from urllib.error import HTTPError
 
+import psycopg2
 import json
 import os
 
@@ -64,11 +66,31 @@ def processRequest(req):
 
     elif req.get("result").get("action") == "queryLine":
 
-        baseurl = "https://query.yahooapis.com/v1/public/yql?"
+        line_query = "SELECT ticket_id, first_name, issue_type FROM public.example_table"
+        result = dbConnection(line_query)
+        data = json.loads(result)
+        res = makeWebhookResult(data)
+        return res
 
     else:
         return {}
 
+def dbConnection(line_query):
+    parse.uses_netloc.append("postgres")
+    url = parse.urlparse(os.environ["DATABASE_URL"])
+    # DATABASE_URL set in : heroku config
+
+    conn = psycopg2.connect(
+        database=url.path[1:],
+        user=url.username,
+        password=url.password,
+        host=url.hostname,
+        port=url.port
+    )
+
+    line_que = conn(line_query)
+
+    return line_que
 
 
 def makeYqlQuery(req):
@@ -104,7 +126,7 @@ def makeWebhookResult(data):
     if condition is None:
         return {}
 
-    print(json.dumps(item, indent=4))
+    # print(json.dumps(item, indent=4))
 
     speech = "Today the weather in " + location.get('city') + ": " + condition.get('text') + \
              ", And the temperature is " + condition.get('temp') + " " + units.get('temperature')
@@ -115,6 +137,7 @@ def makeWebhookResult(data):
     return {
         "speech": speech,
         "displayText": speech,
+        # "item": item,
         "data": data,
         # "contextOut": [],
         "source": "apiai-weather-webhook-sample"
