@@ -46,9 +46,10 @@ def webhook():
 
     # res = json.dumps(res, indent=4)
     # print(res)
-    json_var = json.dumps(res)
+    # Converting res back into json output
+    json_convert = json.dumps(res)
 
-    r = make_response(json_var)
+    r = make_response(json_convert)
     r.headers['Content-Type'] = 'application/json'
     return r
 
@@ -123,13 +124,13 @@ def makeYqlQuery(req):
 def queryLineResponse(data):
     speech = "The line looks like:\n Ticket Id | First Name | Issue Type\n ------------------------------------\n"
     # Iterate through records in the data, and append them to the 'speech' variable
-    for record in data:
-        ticket_id = record.get('ticket_id')
-        first_name = record.get('first_name')
-        issue_type = record.get('issue_type')
-
-        speech + "{} | {} | {}\n---------------\n".format(ticket_id, first_name, issue_type)
-
+    # for record in data:
+    #     ticket_id = record.get('ticket_id')
+    #     first_name = record.get('first_name')
+    #     issue_type = record.get('issue_type')
+    #
+    #     speech + "{} | {} | {}\n---------------\n".format(ticket_id, first_name, issue_type)
+    speech = speech + str(data)
     print("Response:")
     print(speech)
 
