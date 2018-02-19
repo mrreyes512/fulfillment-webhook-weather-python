@@ -44,7 +44,7 @@ def webhook():
 
     res = processRequest(req)
 
-    res = json.dumps(res, indent=4)
+    # res = json.dumps(res, indent=4)
     # print(res)
     r = make_response(res)
     r.headers['Content-Type'] = 'application/json'
@@ -68,12 +68,23 @@ def processRequest(req):
 
         line_query = "SELECT ticket_id, first_name, issue_type FROM public.example_table"
         result = dbConnection(line_query)
-        data = json.loads(result)
-        res = makeWebhookResult(data)
-        return res
+        # process data back from db
+        record = []
+        for r in result:
+            record.append(
+                {'ticket_id': r[0],
+                 'first_name': r[1],
+                 'issue_type': r[2]
+            })
+        # Package up data from DB in appropriate response format
+        formatted = queryLineResponse(result)
+        # package up formatted response in json
+        response = json.loads(formatted)
+        return response
 
     else:
         return {}
+
 
 def dbConnection(line_query):
     parse.uses_netloc.append("postgres")
@@ -88,9 +99,9 @@ def dbConnection(line_query):
         port=url.port
     )
 
-    line_que = conn(line_query)
+    query_results = conn(line_query)
 
-    return line_que
+    return query_results
 
 
 def makeYqlQuery(req):
@@ -101,6 +112,28 @@ def makeYqlQuery(req):
         return None
 
     return "select * from weather.forecast where woeid in (select woeid from geo.places(1) where text='" + city + "')"
+
+
+def queryLineResponse(data):
+    speech = "The line looks like:\n Ticket Id | First Name | Issue Type\n ------------------------------------\n"
+    # Iterate through records in the data, and append them to the 'speech' variable
+    for record in data:
+        ticket_id = record.get('ticket_id')
+        first_name = record.get('first_name')
+        issue_type = record.get('issue_type')
+
+        speech + "{} | {} | {}\n---------------\n".format(ticket_id, first_name, issue_type)
+
+    print("Response:")
+    print(speech)
+
+    return {
+        "speech": speech,
+        "displayText": speech,
+        # "item": item,
+        "data": data,
+        # "contextOut": [],
+    }
 
 
 def makeWebhookResult(data):
