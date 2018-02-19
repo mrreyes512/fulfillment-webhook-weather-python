@@ -46,7 +46,9 @@ def webhook():
 
     # res = json.dumps(res, indent=4)
     # print(res)
-    r = make_response(res)
+    json_var = json.dumps(res)
+
+    r = make_response(json_var)
     r.headers['Content-Type'] = 'application/json'
     return r
 
@@ -77,10 +79,11 @@ def processRequest(req):
                  'issue_type': r[2]
             })
         # Package up data from DB in appropriate response format
-        formatted = queryLineResponse(result)
+        formatted = queryLineResponse(record)
         # package up formatted response in json
-        response = json.loads(formatted)
-        return response
+
+        # response = json.loads(formatted)
+        return formatted
 
     else:
         return {}
@@ -99,7 +102,10 @@ def dbConnection(line_query):
         port=url.port
     )
 
-    query_results = conn(line_query)
+    curr = conn.cursor()
+    curr.execute(line_query)
+
+    query_results = curr.fetchall()
 
     return query_results
 
