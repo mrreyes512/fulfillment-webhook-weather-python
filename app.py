@@ -81,8 +81,10 @@ def processRequest(req):
                  'issue_type': r[2]
             })
         # Package up data from DB in appropriate response format
-        # formatted = queryLineResponse(record)
-        formatted = formatRecords(result)
+        formatted = queryLineResponse(record)
+
+        # formatted = formatRecords(result)
+
         # package up formatted response in json
 
         # response = json.loads(formatted)
