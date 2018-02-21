@@ -81,9 +81,9 @@ def processRequest(req):
                  'issue_type': r[2]
             })
         # Package up data from DB in appropriate response format
-        formatted = queryLineResponse(record)
+        # formatted = queryLineResponse(record)
 
-        # formatted = formatRecords(result)
+        formatted = formatRecords(result)
 
         # package up formatted response in json
 
@@ -134,7 +134,17 @@ def formatRecords(result):
         tab.add_row(row)
 
     s = tab.draw()
-    print(s)
+    # print(s)
+    speech = "The line looks like:"
+    speech = speech + s
+    print("Response:")
+    print(speech)
+
+    return {
+        "speech": speech,
+        "displayText": speech
+    }
+
 
 
 def queryLineResponse(data):
