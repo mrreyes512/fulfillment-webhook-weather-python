@@ -81,7 +81,8 @@ def processRequest(req):
                  'issue_type': r[2]
             })
         # Package up data from DB in appropriate response format
-        formatted = queryLineResponse(record)
+        # formatted = queryLineResponse(record)
+        formatted = formatRecords(result)
         # package up formatted response in json
 
         # response = json.loads(formatted)
@@ -120,6 +121,18 @@ def makeYqlQuery(req):
         return None
 
     return "select * from weather.forecast where woeid in (select woeid from geo.places(1) where text='" + city + "')"
+
+
+def formatRecords(result):
+    tab = texttable.Texttable()
+    headings = ['Ticket ID', 'First Name', 'Issue Type']
+    tab.header(headings)
+
+    for row in result:
+        tab.add_row(row)
+
+    s = tab.draw()
+    print(s)
 
 
 def queryLineResponse(data):
