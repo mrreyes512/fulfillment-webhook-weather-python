@@ -26,6 +26,7 @@ from urllib.error import HTTPError
 import psycopg2
 import json
 import os
+import texttable
 
 from flask import Flask
 from flask import request
@@ -103,10 +104,10 @@ def dbConnection(line_query):
         port=url.port
     )
 
-    curr = conn.cursor()
-    curr.execute(line_query)
+    cur = conn.cursor()
+    cur.execute(line_query)
 
-    query_results = curr.fetchall()
+    query_results = cur.fetchall()
 
     return query_results
 
